@@ -89,6 +89,8 @@ func constructCommand(clientRequest string) (string, bool) {
 		return constructProjectCommand()
 	case "issue":
 		return constructIssueCommand()
+	case "resolve":
+		return constructResolveCommand()
 	default:
 		return "Invallid command", false
 	}
@@ -196,4 +198,31 @@ func constructIssueCommand() (string, bool) {
 	}
 
 	return "issue " + strings.TrimSpace(project) + " " + loggedUser + " " + strings.TrimSpace(title) + " " + strings.TrimSpace(description) + " false", true
+}
+
+func constructResolveCommand() (string, bool) {
+	if loggedUser == "" {
+		return "You are not logged in", false
+	}
+
+	var project string
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Print("Project name: ")
+	if scanner.Scan() {
+		project = scanner.Text()
+		if len(strings.Fields(project)) != 1 {
+			return "Invalid input: whitespace is not allowed here", false
+		}
+	}
+
+	var title string
+	fmt.Print("Title: ")
+	if scanner.Scan() {
+		title = scanner.Text()
+		if len(strings.Fields(title)) != 1 {
+			return "Invalid input: whitespace is not allowed here", false
+		}
+	}
+
+	return "resolve " + strings.TrimSpace(project) + " " + strings.TrimSpace(title), true
 }

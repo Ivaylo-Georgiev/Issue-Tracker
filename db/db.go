@@ -89,3 +89,18 @@ func FindExistingIssue(project string, title string) (issue.Issue, error) {
 
 	return existingIssue, err
 }
+
+func ResolveIssue(project string, title string) {
+	collection := Client.Database(dbName).Collection(issuesCollection)
+	_, err := collection.UpdateOne(
+		context.TODO(),
+		bson.M{"project": project, "title": title},
+		bson.D{
+			{"$set", bson.D{{"resolved", "true"}}},
+		},
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+}

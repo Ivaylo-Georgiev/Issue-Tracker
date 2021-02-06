@@ -39,6 +39,10 @@ func ParseCommand(rawCommand string) Command {
 				Title:       commandElements[3],
 				Description: commandElements[4],
 				Resolved:    commandElements[5]}}
+	case "resolve":
+		return ResolveCommand{
+			Project: commandElements[1],
+			Title:   commandElements[2]}
 	default:
 		return nil
 	}
@@ -125,4 +129,29 @@ func (ic IssueCommand) Execute() (string, bool) {
 
 	db.InsertNewIssue(newIssue)
 	return "Issue created successfully\n", true
+}
+
+// RESOLVE
+
+type ResolveCommand struct {
+	Project string
+	Title   string
+}
+
+func (rc ResolveCommand) Execute() (string, bool) {
+	if _, err := db.FindExistingProject(rc.Project); err != nil {
+		return "Could not find project \n", false
+	}
+
+	resolvableIssue, err := db.FindExistingIssue(rc.Project, rc.Title)
+	if err != nil {
+		return "Could not resolve issue - issue does not exist \n", false
+	}
+
+	if resolvableIssue.Resolved == "true" {
+		return "Issue is already resolved \n", false
+	}
+
+	db.ResolveIssue(resolvableIssue.Project, resolvableIssue.Title)
+	return "Issue resolved successfully\n", true
 }
