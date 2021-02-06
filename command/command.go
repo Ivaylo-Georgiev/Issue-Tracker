@@ -46,6 +46,10 @@ func ParseCommand(rawCommand string) Command {
 	case "list":
 		return ListCommand{
 			Project: commandElements[1]}
+	case "find":
+		return FindCommand{
+			Project: commandElements[1],
+			Title:   commandElements[2]}
 	default:
 		return nil
 	}
@@ -181,4 +185,28 @@ func (lc ListCommand) Execute() (string, bool) {
 	}
 
 	return issuesTitles[:len(issuesTitles)-2] + "\n", true
+}
+
+// FIND
+
+type FindCommand struct {
+	Project string
+	Title   string
+}
+
+func (fc FindCommand) Execute() (string, bool) {
+	if _, err := db.FindExistingProject(fc.Project); err != nil {
+		return "Could not find project \n", false
+	}
+
+	foundIssue, err := db.FindExistingIssue(fc.Project, fc.Title)
+	if err != nil {
+		return "Issue does not exist \n", false
+	}
+
+	foundIssueStr := "Project: " + foundIssue.Project + " Reporter: " +
+		foundIssue.Reporter + " Title: " + foundIssue.Title + " Description: " +
+		foundIssue.Description + " Resolved: " + foundIssue.Resolved + "\n"
+
+	return foundIssueStr, true
 }

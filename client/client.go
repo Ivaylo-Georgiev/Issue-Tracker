@@ -92,6 +92,8 @@ func constructCommand(clientRequest string) (string, bool) {
 		return constructResolveCommand()
 	case "list":
 		return constructListCommand()
+	case "find":
+		return constructFindCommand()
 	default:
 		return "Invallid command", false
 	}
@@ -244,4 +246,31 @@ func constructListCommand() (string, bool) {
 	}
 
 	return "list " + strings.TrimSpace(project), true
+}
+
+func constructFindCommand() (string, bool) {
+	if loggedUser == "" {
+		return "You are not logged in", false
+	}
+
+	var project string
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Print("Project name: ")
+	if scanner.Scan() {
+		project = scanner.Text()
+		if len(strings.Fields(project)) != 1 {
+			return "Invalid input: whitespace is not allowed here", false
+		}
+	}
+
+	var title string
+	fmt.Print("Title: ")
+	if scanner.Scan() {
+		title = scanner.Text()
+		if len(strings.Fields(title)) != 1 {
+			return "Invalid input: whitespace is not allowed here", false
+		}
+	}
+
+	return "find " + strings.TrimSpace(project) + " " + strings.TrimSpace(title), true
 }
