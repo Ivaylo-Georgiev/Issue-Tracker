@@ -94,6 +94,8 @@ func constructCommand(clientRequest string) (string, bool) {
 		return constructListCommand()
 	case "find":
 		return constructFindCommand()
+	case "comment":
+		return constructCommentCommand()
 	default:
 		return "Invallid command", false
 	}
@@ -241,4 +243,32 @@ func constructFindCommand() (string, bool) {
 	}
 
 	return "find|-|" + strings.TrimSpace(project) + "|-|" + strings.TrimSpace(title), true
+}
+
+func constructCommentCommand() (string, bool) {
+	if loggedUser == "" {
+		return "You are not logged in", false
+	}
+
+	scanner := bufio.NewScanner(os.Stdin)
+
+	var project string
+	fmt.Print("Project name: ")
+	if scanner.Scan() {
+		project = scanner.Text()
+	}
+
+	var title string
+	fmt.Print("Title: ")
+	if scanner.Scan() {
+		title = scanner.Text()
+	}
+
+	var comment string
+	fmt.Print("Comment: ")
+	if scanner.Scan() {
+		comment = scanner.Text()
+	}
+
+	return "comment|-|" + strings.TrimSpace(project) + "|-|" + strings.TrimSpace(title) + "|-|" + strings.TrimSpace(comment) + "|-|" + loggedUser, true
 }

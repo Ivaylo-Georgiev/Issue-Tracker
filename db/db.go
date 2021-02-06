@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"go.fmi/issuetracker/comment"
 	"go.fmi/issuetracker/issue"
 	"go.fmi/issuetracker/project"
 	"go.fmi/issuetracker/user"
@@ -23,6 +24,7 @@ const (
 	usersCollection    = "users"
 	projectsCollection = "projects"
 	issuesCollection   = "issues"
+	commentsCollection = "comments"
 )
 
 // Connect establishes a connection to the database
@@ -112,7 +114,7 @@ func ResolveIssue(project string, title string) {
 	}
 }
 
-// ListIssues creates a comma separated list of the names of all issues in a project
+// ListIssues lists all issues in a project
 func ListIssues(project string) []issue.Issue {
 	collection := Client.Database(dbName).Collection(issuesCollection)
 	cursor, _ := collection.Find(
@@ -123,4 +125,26 @@ func ListIssues(project string) []issue.Issue {
 	cursor.All(context.TODO(), &issues)
 
 	return issues
+}
+
+// InsertComment insert a new comment for an issue in the 'comments' collection
+func InsertComment(comment comment.Comment) {
+	collection := Client.Database(dbName).Collection(commentsCollection)
+	_, err := collection.InsertOne(context.TODO(), comment)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// FindComments lists all comments for an issue
+func FindComments(project string, title string) []comment.Comment {
+	collection := Client.Database(dbName).Collection(commentsCollection)
+	cursor, _ := collection.Find(
+		context.TODO(),
+		bson.M{"project": project, "title": title})
+
+	var comments []comment.Comment
+	cursor.All(context.TODO(), &comments)
+
+	return comments
 }

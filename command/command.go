@@ -3,6 +3,7 @@ package command
 import (
 	"strings"
 
+	"go.fmi/issuetracker/comment"
 	"go.fmi/issuetracker/db"
 	"go.fmi/issuetracker/issue"
 	"go.fmi/issuetracker/project"
@@ -52,6 +53,13 @@ func ParseCommand(rawCommand string) Command {
 		return FindCommand{
 			Project: commandElements[1],
 			Title:   commandElements[2]}
+	case "comment":
+		return CommentCommand{
+			comment.Comment{
+				Project:   commandElements[1],
+				Title:     commandElements[2],
+				Content:   commandElements[3],
+				Commenter: commandElements[4]}}
 	default:
 		return nil
 	}
@@ -220,9 +228,37 @@ func (fc FindCommand) Execute() (string, bool) {
 		return "Issue does not exist \n", false
 	}
 
-	foundIssueStr := "Project: " + foundIssue.Project + " Reporter: " +
-		foundIssue.Reporter + " Title: " + foundIssue.Title + " Description: " +
-		foundIssue.Description + " Resolved: " + foundIssue.Resolved + "\n"
+	comments := db.FindComments(fc.Project, fc.Title)
 
-	return foundIssueStr, true
+	foundIssueStr := "Project: " + foundIssue.Project + "; Reporter: " +
+		foundIssue.Reporter + "; Title: " + foundIssue.Title + "; Description: " +
+		foundIssue.Description + "; Resolved: " + foundIssue.Resolved + "; Comments: "
+
+	for _, comment := range comments {
+		foundIssueStr += "\"" + comment.Content + "\" - " + comment.Commenter + ";"
+	}
+
+	return foundIssueStr + "\n", true
+}
+
+// COMMENT
+
+// CommentCommand is used to create a new comment for an issue
+type CommentCommand struct {
+	Comment comment.Comment
+}
+
+// Execute creates a new comment comment for an issue
+func (cc CommentCommand) Execute() (string, bool) {
+	if _, err := db.FindExistingProject(cc.Comment.Project); err != nil {
+		return "Could not find project \n", false
+	}
+
+	_, err := db.FindExistingIssue(cc.Comment.Project, cc.Comment.Title)
+	if err != nil {
+		return "Issue does not exist \n", false
+	}
+
+	db.InsertComment(cc.Comment)
+	return "Comment added successfully\n", true
 }
