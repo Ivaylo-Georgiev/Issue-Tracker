@@ -9,10 +9,12 @@ import (
 	"go.fmi/issuetracker/user"
 )
 
+// Command is a common interface for all supported command types
 type Command interface {
 	Execute() (string, bool)
 }
 
+// ParseCommand is a factory function that instantiates a Command using raw input
 func ParseCommand(rawCommand string) Command {
 	commandElements := strings.Split(rawCommand, "|-|")
 	commandType := commandElements[0]
@@ -57,10 +59,12 @@ func ParseCommand(rawCommand string) Command {
 
 // REGISTER
 
+// RegisterCommand is used to create a new user
 type RegisterCommand struct {
 	User user.User
 }
 
+// Execute creates a new user
 func (rc RegisterCommand) Execute() (string, bool) {
 	newUser := user.User{
 		Username: rc.User.Username,
@@ -75,10 +79,12 @@ func (rc RegisterCommand) Execute() (string, bool) {
 
 // LOGIN
 
+// LoginCommand is used to log a user in to their account
 type LoginCommand struct {
 	User user.User
 }
 
+// Execute logs a user in to their account
 func (lc LoginCommand) Execute() (string, bool) {
 	loggingUser := user.User{
 		Username: lc.User.Username,
@@ -96,10 +102,12 @@ func (lc LoginCommand) Execute() (string, bool) {
 
 // PROJECT
 
+// ProjectCommand is used to create a new project
 type ProjectCommand struct {
 	Project project.Project
 }
 
+// Execute creates a new project
 func (pc ProjectCommand) Execute() (string, bool) {
 	newProject := project.Project{
 		Name: pc.Project.Name}
@@ -114,10 +122,12 @@ func (pc ProjectCommand) Execute() (string, bool) {
 
 // ISSUE
 
+// IssueCommand is used to create a new issue in a project
 type IssueCommand struct {
 	Issue issue.Issue
 }
 
+// Execute creates a new issue in a project
 func (ic IssueCommand) Execute() (string, bool) {
 	newIssue := issue.Issue{
 		Project:     ic.Issue.Project,
@@ -140,11 +150,13 @@ func (ic IssueCommand) Execute() (string, bool) {
 
 // RESOLVE
 
+// ResolveCommand is use to resolve an issue
 type ResolveCommand struct {
 	Project string
 	Title   string
 }
 
+// Execute resolves an issue
 func (rc ResolveCommand) Execute() (string, bool) {
 	if _, err := db.FindExistingProject(rc.Project); err != nil {
 		return "Could not find project \n", false
@@ -165,10 +177,12 @@ func (rc ResolveCommand) Execute() (string, bool) {
 
 // LIST
 
+// ListCommand is used to list all issues in a project
 type ListCommand struct {
 	Project string
 }
 
+// Execute lists all issues in a project
 func (lc ListCommand) Execute() (string, bool) {
 	if _, err := db.FindExistingProject(lc.Project); err != nil {
 		return "Could not find project \n", false
@@ -189,11 +203,13 @@ func (lc ListCommand) Execute() (string, bool) {
 
 // FIND
 
+// FindCommand is used to find the details for an issue in a project
 type FindCommand struct {
 	Project string
 	Title   string
 }
 
+// Execute finds the details for an issue in a project
 func (fc FindCommand) Execute() (string, bool) {
 	if _, err := db.FindExistingProject(fc.Project); err != nil {
 		return "Could not find project \n", false

@@ -104,8 +104,9 @@ func constructLoginCommand() (string, bool) {
 		return "You are already logged in", false
 	}
 
-	var username, password string
 	scanner := bufio.NewScanner(os.Stdin)
+
+	var username, password string
 	fmt.Print("Username: ")
 	if scanner.Scan() {
 		username = scanner.Text()
@@ -123,8 +124,9 @@ func constructRegisterCommand() (string, bool) {
 		return "You are already logged in", false
 	}
 
-	var username, password string
 	scanner := bufio.NewScanner(os.Stdin)
+
+	var username, password string
 	fmt.Print("Username: ")
 	if scanner.Scan() {
 		username = scanner.Text()
@@ -142,8 +144,9 @@ func constructProjectCommand() (string, bool) {
 		return "You are not logged in", false
 	}
 
-	var projectName string
 	scanner := bufio.NewScanner(os.Stdin)
+
+	var projectName string
 	fmt.Print("Project name: ")
 	if scanner.Scan() {
 		projectName = scanner.Text()
@@ -157,8 +160,9 @@ func constructIssueCommand() (string, bool) {
 		return "You are not logged in", false
 	}
 
-	var project string
 	scanner := bufio.NewScanner(os.Stdin)
+
+	var project string
 	fmt.Print("Project name: ")
 	if scanner.Scan() {
 		project = scanner.Text()
@@ -184,8 +188,9 @@ func constructResolveCommand() (string, bool) {
 		return "You are not logged in", false
 	}
 
-	var project string
 	scanner := bufio.NewScanner(os.Stdin)
+
+	var project string
 	fmt.Print("Project name: ")
 	if scanner.Scan() {
 		project = scanner.Text()
@@ -205,8 +210,9 @@ func constructListCommand() (string, bool) {
 		return "You are not logged in", false
 	}
 
-	var project string
 	scanner := bufio.NewScanner(os.Stdin)
+
+	var project string
 	fmt.Print("Project name: ")
 	if scanner.Scan() {
 		project = scanner.Text()
@@ -220,8 +226,9 @@ func constructFindCommand() (string, bool) {
 		return "You are not logged in", false
 	}
 
-	var project string
 	scanner := bufio.NewScanner(os.Stdin)
+
+	var project string
 	fmt.Print("Project name: ")
 	if scanner.Scan() {
 		project = scanner.Text()

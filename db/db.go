@@ -14,6 +14,7 @@ import (
 	"go.fmi/issuetracker/user"
 )
 
+// Client is used to make transactions in the database
 var Client mongo.Client
 
 const (
@@ -24,6 +25,7 @@ const (
 	issuesCollection   = "issues"
 )
 
+// Connect establishes a connection to the database
 func Connect() {
 	clientLocal, err := mongo.NewClient(options.Client().ApplyURI(connectionURI))
 	Client = *clientLocal
@@ -35,10 +37,9 @@ func Connect() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	//defer Client.Disconnect(ctx)
 }
 
+// IsertRegisteredUser inserts a new user in the 'users' collection
 func InsertRegisteredUser(registeredUser user.User) {
 	collection := Client.Database(dbName).Collection(usersCollection)
 	_, err := collection.InsertOne(context.TODO(), registeredUser)
@@ -47,6 +48,7 @@ func InsertRegisteredUser(registeredUser user.User) {
 	}
 }
 
+// FindRegisteredUser checks whether a specific username is already in the 'users' collection
 func FindRegisteredUser(username string) (user.User, error) {
 	collection := Client.Database(dbName).Collection(usersCollection)
 	filter := bson.M{"username": username}
@@ -56,6 +58,7 @@ func FindRegisteredUser(username string) (user.User, error) {
 	return registeredUser, err
 }
 
+// InsertNewProject inserts a new project in the 'projects' collection
 func InsertNewProject(newProject project.Project) {
 	collection := Client.Database(dbName).Collection(projectsCollection)
 	_, err := collection.InsertOne(context.TODO(), newProject)
@@ -64,6 +67,7 @@ func InsertNewProject(newProject project.Project) {
 	}
 }
 
+// FindExistingProject checks whether a specific project is already in the 'projects' collection
 func FindExistingProject(name string) (project.Project, error) {
 	collection := Client.Database(dbName).Collection(projectsCollection)
 	filter := bson.M{"name": name}
@@ -73,6 +77,7 @@ func FindExistingProject(name string) (project.Project, error) {
 	return existingProject, err
 }
 
+// InsertNewIssue inserts a new issue in the 'issues' collection
 func InsertNewIssue(newIssue issue.Issue) {
 	collection := Client.Database(dbName).Collection(issuesCollection)
 	_, err := collection.InsertOne(context.TODO(), newIssue)
@@ -81,6 +86,7 @@ func InsertNewIssue(newIssue issue.Issue) {
 	}
 }
 
+// FindExistingIssue checks whether an issue with a title and a project is already in the 'issues' collection
 func FindExistingIssue(project string, title string) (issue.Issue, error) {
 	collection := Client.Database(dbName).Collection(issuesCollection)
 	filter := bson.M{"project": project, "title": title}
@@ -90,6 +96,7 @@ func FindExistingIssue(project string, title string) (issue.Issue, error) {
 	return existingIssue, err
 }
 
+// ResolveIssue updates an entry in the 'issues' collection by changing the value of the 'resolved' attribute to 'true'
 func ResolveIssue(project string, title string) {
 	collection := Client.Database(dbName).Collection(issuesCollection)
 	_, err := collection.UpdateOne(
@@ -105,6 +112,7 @@ func ResolveIssue(project string, title string) {
 	}
 }
 
+// ListIssues creates a comma separated list of the names of all issues in a project
 func ListIssues(project string) []issue.Issue {
 	collection := Client.Database(dbName).Collection(issuesCollection)
 	cursor, _ := collection.Find(

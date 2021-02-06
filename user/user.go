@@ -6,11 +6,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// User is an abstraction of a real-life user
 type User struct {
 	Username string
 	Password string
 }
 
+// HashAndSalt hashes a raw string password to store it in the database safely
 func HashAndSalt(password string) string {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	if err != nil {
