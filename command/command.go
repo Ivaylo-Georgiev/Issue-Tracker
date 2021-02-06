@@ -14,7 +14,7 @@ type Command interface {
 }
 
 func ParseCommand(rawCommand string) Command {
-	commandElements := strings.Fields(rawCommand)
+	commandElements := strings.Split(rawCommand, "|-|")
 	commandType := commandElements[0]
 
 	switch commandType {

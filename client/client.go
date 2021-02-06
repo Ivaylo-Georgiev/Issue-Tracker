@@ -109,19 +109,13 @@ func constructLoginCommand() (string, bool) {
 	fmt.Print("Username: ")
 	if scanner.Scan() {
 		username = scanner.Text()
-		if len(strings.Fields(username)) != 1 {
-			return "Invalid input: whitespace is not allowed here", false
-		}
 	}
 	fmt.Print("Password: ")
 	if scanner.Scan() {
 		password = scanner.Text()
-		if len(strings.Fields(password)) != 1 {
-			return "Invalid input: whitespace is not allowed here", false
-		}
 	}
 
-	return "login " + strings.TrimSpace(username) + " " + strings.TrimSpace(password), true
+	return "login|-|" + strings.TrimSpace(username) + "|-|" + strings.TrimSpace(password), true
 }
 
 func constructRegisterCommand() (string, bool) {
@@ -134,19 +128,13 @@ func constructRegisterCommand() (string, bool) {
 	fmt.Print("Username: ")
 	if scanner.Scan() {
 		username = scanner.Text()
-		if len(strings.Fields(username)) != 1 {
-			return "Invalid input: whitespace is not allowed here", false
-		}
 	}
 	fmt.Print("Password: ")
 	if scanner.Scan() {
 		password = scanner.Text()
-		if len(strings.Fields(password)) != 1 {
-			return "Invalid input: whitespace is not allowed here", false
-		}
 	}
 
-	return "register " + strings.TrimSpace(username) + " " + strings.TrimSpace(password), true
+	return "register|-|" + strings.TrimSpace(username) + "|-|" + strings.TrimSpace(password), true
 }
 
 func constructProjectCommand() (string, bool) {
@@ -159,12 +147,9 @@ func constructProjectCommand() (string, bool) {
 	fmt.Print("Project name: ")
 	if scanner.Scan() {
 		projectName = scanner.Text()
-		if len(strings.Fields(projectName)) != 1 {
-			return "Invalid input: whitespace is not allowed here", false
-		}
 	}
 
-	return "project " + strings.TrimSpace(projectName), true
+	return "project|-|" + strings.TrimSpace(projectName), true
 }
 
 func constructIssueCommand() (string, bool) {
@@ -177,30 +162,21 @@ func constructIssueCommand() (string, bool) {
 	fmt.Print("Project name: ")
 	if scanner.Scan() {
 		project = scanner.Text()
-		if len(strings.Fields(project)) != 1 {
-			return "Invalid input: whitespace is not allowed here", false
-		}
 	}
 
 	var title string
 	fmt.Print("Title: ")
 	if scanner.Scan() {
 		title = scanner.Text()
-		if len(strings.Fields(title)) != 1 {
-			return "Invalid input: whitespace is not allowed here", false
-		}
 	}
 
 	var description string
 	fmt.Print("Description: ")
 	if scanner.Scan() {
 		description = scanner.Text()
-		if len(strings.Fields(description)) != 1 {
-			return "Invalid input: whitespace is not allowed here", false
-		}
 	}
 
-	return "issue " + strings.TrimSpace(project) + " " + loggedUser + " " + strings.TrimSpace(title) + " " + strings.TrimSpace(description) + " false", true
+	return "issue|-|" + strings.TrimSpace(project) + "|-|" + loggedUser + "|-|" + strings.TrimSpace(title) + "|-|" + strings.TrimSpace(description) + "|-|false", true
 }
 
 func constructResolveCommand() (string, bool) {
@@ -213,21 +189,15 @@ func constructResolveCommand() (string, bool) {
 	fmt.Print("Project name: ")
 	if scanner.Scan() {
 		project = scanner.Text()
-		if len(strings.Fields(project)) != 1 {
-			return "Invalid input: whitespace is not allowed here", false
-		}
 	}
 
 	var title string
 	fmt.Print("Title: ")
 	if scanner.Scan() {
 		title = scanner.Text()
-		if len(strings.Fields(title)) != 1 {
-			return "Invalid input: whitespace is not allowed here", false
-		}
 	}
 
-	return "resolve " + strings.TrimSpace(project) + " " + strings.TrimSpace(title), true
+	return "resolve|-|" + strings.TrimSpace(project) + "|-|" + strings.TrimSpace(title), true
 }
 
 func constructListCommand() (string, bool) {
@@ -240,12 +210,9 @@ func constructListCommand() (string, bool) {
 	fmt.Print("Project name: ")
 	if scanner.Scan() {
 		project = scanner.Text()
-		if len(strings.Fields(project)) != 1 {
-			return "Invalid input: whitespace is not allowed here", false
-		}
 	}
 
-	return "list " + strings.TrimSpace(project), true
+	return "list|-|" + strings.TrimSpace(project), true
 }
 
 func constructFindCommand() (string, bool) {
@@ -258,19 +225,13 @@ func constructFindCommand() (string, bool) {
 	fmt.Print("Project name: ")
 	if scanner.Scan() {
 		project = scanner.Text()
-		if len(strings.Fields(project)) != 1 {
-			return "Invalid input: whitespace is not allowed here", false
-		}
 	}
 
 	var title string
 	fmt.Print("Title: ")
 	if scanner.Scan() {
 		title = scanner.Text()
-		if len(strings.Fields(title)) != 1 {
-			return "Invalid input: whitespace is not allowed here", false
-		}
 	}
 
-	return "find " + strings.TrimSpace(project) + " " + strings.TrimSpace(title), true
+	return "find|-|" + strings.TrimSpace(project) + "|-|" + strings.TrimSpace(title), true
 }
