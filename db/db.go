@@ -104,3 +104,15 @@ func ResolveIssue(project string, title string) {
 		log.Fatal(err)
 	}
 }
+
+func ListIssues(project string) []issue.Issue {
+	collection := Client.Database(dbName).Collection(issuesCollection)
+	cursor, _ := collection.Find(
+		context.TODO(),
+		bson.M{"project": project})
+
+	var issues []issue.Issue
+	cursor.All(context.TODO(), &issues)
+
+	return issues
+}

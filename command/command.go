@@ -43,6 +43,9 @@ func ParseCommand(rawCommand string) Command {
 		return ResolveCommand{
 			Project: commandElements[1],
 			Title:   commandElements[2]}
+	case "list":
+		return ListCommand{
+			Project: commandElements[1]}
 	default:
 		return nil
 	}
@@ -154,4 +157,28 @@ func (rc ResolveCommand) Execute() (string, bool) {
 
 	db.ResolveIssue(resolvableIssue.Project, resolvableIssue.Title)
 	return "Issue resolved successfully\n", true
+}
+
+// LIST
+
+type ListCommand struct {
+	Project string
+}
+
+func (lc ListCommand) Execute() (string, bool) {
+	if _, err := db.FindExistingProject(lc.Project); err != nil {
+		return "Could not find project \n", false
+	}
+
+	issues := db.ListIssues(lc.Project)
+	if len(issues) == 0 {
+		return "There aren't any issues in this project\n", true
+	}
+
+	issuesTitles := "Issues in project: "
+	for _, issue := range issues {
+		issuesTitles += issue.Title + ", "
+	}
+
+	return issuesTitles[:len(issuesTitles)-2] + "\n", true
 }
