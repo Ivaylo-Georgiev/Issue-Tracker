@@ -103,9 +103,9 @@ func (lc LoginCommand) Execute() (string, bool) {
 
 	if err == nil && isPasswordCorrect {
 		return "Login successful as " + loggingUser.Username + "\n", true
-	} else {
-		return "Login unsuccessful - inavlid username/password\n", false
 	}
+
+	return "Login unsuccessful - inavlid username/password\n", false
 }
 
 // PROJECT
