@@ -22,6 +22,7 @@ func HashAndSalt(password string) string {
 	return string(hash)
 }
 
+// ComparePasswords is used during login to verify that the stored password matches with the user input
 func ComparePasswords(hashedPassword string, plainPassword string) bool {
 	byteHash := []byte(hashedPassword)
 	bytePlain := []byte(plainPassword)
