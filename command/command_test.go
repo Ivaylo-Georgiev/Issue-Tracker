@@ -437,5 +437,294 @@ func TestResolveIssue(t *testing.T) {
 	if message != "Issue resolved successfully\n" {
 		t.Errorf("Invalid command execution message. Expected: Issue resolved successfully\n, but got " + message)
 	}
+}
 
+func TestResolveMissingIssue(t *testing.T) {
+	defer monkey.UnpatchAll()
+
+	monkey.Patch(db.FindExistingProject, func(string) (project.Project, error) {
+		return project.Project{}, nil
+	})
+
+	monkey.Patch(db.FindExistingIssue, func(string, string) (issue.Issue, error) {
+		return issue.Issue{}, errors.New("Issue not found")
+	})
+
+	resolveCommand := ResolveCommand{Project: "project", Title: "title"}
+	message, ok := resolveCommand.Execute()
+
+	if ok {
+		t.Errorf("Command execution completed with OK, but shouldn't have")
+	}
+
+	if message != "Could not resolve issue - issue does not exist \n" {
+		t.Errorf("Invalid command execution message. Expected: Could not resolve issue - issue does not exist \n, but got " + message)
+	}
+}
+
+func TestResolveIssueMissingProject(t *testing.T) {
+	defer monkey.UnpatchAll()
+
+	monkey.Patch(db.FindExistingProject, func(string) (project.Project, error) {
+		return project.Project{}, errors.New("Project not found")
+	})
+
+	resolveCommand := ResolveCommand{Project: "project", Title: "title"}
+	message, ok := resolveCommand.Execute()
+
+	if ok {
+		t.Errorf("Command execution completed with OK, but shouldn't have")
+	}
+
+	if message != "Could not find project \n" {
+		t.Errorf("Invalid command execution message. Expected: Could not find project \n, but got " + message)
+	}
+}
+
+func TestResolveResolvedIssue(t *testing.T) {
+	defer monkey.UnpatchAll()
+	issueMock := issue.Issue{
+		Project:     "project",
+		Reporter:    "reporter",
+		Title:       "title",
+		Description: "description",
+		Resolved:    "true"}
+
+	monkey.Patch(db.FindExistingProject, func(string) (project.Project, error) {
+		return project.Project{}, nil
+	})
+
+	monkey.Patch(db.FindExistingIssue, func(string, string) (issue.Issue, error) {
+		return issueMock, nil
+	})
+
+	resolveCommand := ResolveCommand{Project: "project", Title: "title"}
+	message, ok := resolveCommand.Execute()
+
+	if ok {
+		t.Errorf("Command execution completed with OK, but shouldn't have")
+	}
+
+	if message != "Issue is already resolved \n" {
+		t.Errorf("Invalid command execution message. Expected: Issue is already resolved \n, but got " + message)
+	}
+}
+
+func TestListCommand(t *testing.T) {
+	defer monkey.UnpatchAll()
+
+	monkey.Patch(db.FindExistingProject, func(string) (project.Project, error) {
+		return project.Project{}, nil
+	})
+
+	monkey.Patch(db.ListIssues, func(string) []issue.Issue {
+		return []issue.Issue{issue.Issue{Title: "first issue"}, issue.Issue{Title: "second issue"}}
+	})
+
+	listCommand := ListCommand{Project: "project"}
+	message, ok := listCommand.Execute()
+
+	if !ok {
+		t.Errorf("Command execution didn't complete with OK, but should have")
+	}
+
+	if message != "Issues in project: first issue, second issue\n" {
+		t.Errorf("Invalid command execution message. Expected: Issues in project: first issue, second issue\n, but got " + message)
+	}
+}
+
+func TestListCommandNoIssues(t *testing.T) {
+	defer monkey.UnpatchAll()
+
+	monkey.Patch(db.FindExistingProject, func(string) (project.Project, error) {
+		return project.Project{}, nil
+	})
+
+	monkey.Patch(db.ListIssues, func(string) []issue.Issue {
+		return []issue.Issue{}
+	})
+
+	listCommand := ListCommand{Project: "project"}
+	message, ok := listCommand.Execute()
+
+	if !ok {
+		t.Errorf("Command execution didn't complete with OK, but should have")
+	}
+
+	if message != "There aren't any issues in this project\n" {
+		t.Errorf("Invalid command execution message. Expected: There aren't any issues in this project\n, but got " + message)
+	}
+}
+
+func TestListCommandMissingProject(t *testing.T) {
+	defer monkey.UnpatchAll()
+
+	monkey.Patch(db.FindExistingProject, func(string) (project.Project, error) {
+		return project.Project{}, errors.New("Project not found")
+	})
+
+	listCommand := ListCommand{Project: "project"}
+	message, ok := listCommand.Execute()
+
+	if ok {
+		t.Errorf("Command execution completed with OK, but shouldn't have")
+	}
+
+	if message != "Could not find project \n" {
+		t.Errorf("Invalid command execution message. Expected: Could not find project \n, but got " + message)
+	}
+}
+
+func TestFindCommand(t *testing.T) {
+	defer monkey.UnpatchAll()
+	commentMock := comment.Comment{
+		Project:   "project",
+		Title:     "title",
+		Content:   "content",
+		Commenter: "commenter"}
+	issueMock := issue.Issue{
+		Project:     "project",
+		Reporter:    "reporter",
+		Title:       "title",
+		Description: "description",
+		Resolved:    "true"}
+
+	monkey.Patch(db.FindExistingProject, func(string) (project.Project, error) {
+		return project.Project{Name: "project"}, nil
+	})
+
+	monkey.Patch(db.FindExistingIssue, func(string, string) (issue.Issue, error) {
+		return issueMock, nil
+	})
+
+	monkey.Patch(db.FindComments, func(string, string) []comment.Comment {
+		return []comment.Comment{commentMock}
+	})
+
+	findCommand := FindCommand{Project: "project", Title: "title"}
+	message, ok := findCommand.Execute()
+
+	if !ok {
+		t.Errorf("Command execution didn't complete with OK, but should have")
+	}
+
+	if message != "Project: project; Reporter: reporter; Title: title; Description: description; Resolved: true; Comments: \"content\" - commenter;\n" {
+		t.Errorf("Invalid command execution message. Expected: Project: project; Reporter: reporter; Title: title; Description: description; Resolved: true; Comments: \"content\" - commenter;\n, but got " + message)
+	}
+}
+
+func TestFindCommandMissingIssue(t *testing.T) {
+	defer monkey.UnpatchAll()
+
+	monkey.Patch(db.FindExistingProject, func(string) (project.Project, error) {
+		return project.Project{Name: "project"}, nil
+	})
+
+	monkey.Patch(db.FindExistingIssue, func(string, string) (issue.Issue, error) {
+		return issue.Issue{}, errors.New("Missing issue")
+	})
+
+	findCommand := FindCommand{Project: "project", Title: "title"}
+	message, ok := findCommand.Execute()
+
+	if ok {
+		t.Errorf("Command execution completed with OK, but shouldn't have")
+	}
+
+	if message != "Issue does not exist \n" {
+		t.Errorf("Invalid command execution message. Expected: Issue does not exist \n, but got " + message)
+	}
+}
+
+func TestFindCommandMissingProject(t *testing.T) {
+	defer monkey.UnpatchAll()
+
+	monkey.Patch(db.FindExistingProject, func(string) (project.Project, error) {
+		return project.Project{}, errors.New("Missing project")
+	})
+
+	findCommand := FindCommand{Project: "project", Title: "title"}
+	message, ok := findCommand.Execute()
+
+	if ok {
+		t.Errorf("Command execution completed with OK, but shouldn't have")
+	}
+
+	if message != "Could not find project \n" {
+		t.Errorf("Invalid command execution message. Expected: Could not find project \n, but got " + message)
+	}
+}
+
+func TestCommentCommand(t *testing.T) {
+	defer monkey.UnpatchAll()
+	commentMock := comment.Comment{
+		Project:   "project",
+		Title:     "title",
+		Content:   "content",
+		Commenter: "commenter"}
+
+	monkey.Patch(db.FindExistingProject, func(string) (project.Project, error) {
+		return project.Project{Name: "project"}, nil
+	})
+
+	monkey.Patch(db.FindExistingIssue, func(string, string) (issue.Issue, error) {
+		return issue.Issue{}, nil
+	})
+
+	monkey.Patch(db.InsertComment, func(comment.Comment) {
+		return
+	})
+
+	commentCommand := CommentCommand{commentMock}
+	message, ok := commentCommand.Execute()
+
+	if !ok {
+		t.Errorf("Command execution didn't complete with OK, but should have")
+	}
+
+	if message != "Comment added successfully\n" {
+		t.Errorf("Invalid command execution message. Expected: Comment added successfully\n, but got " + message)
+	}
+}
+
+func TestCommentCommandMissingIssue(t *testing.T) {
+	defer monkey.UnpatchAll()
+
+	monkey.Patch(db.FindExistingProject, func(string) (project.Project, error) {
+		return project.Project{Name: "project"}, nil
+	})
+
+	monkey.Patch(db.FindExistingIssue, func(string, string) (issue.Issue, error) {
+		return issue.Issue{}, errors.New("Issue not found")
+	})
+
+	commentCommand := CommentCommand{comment.Comment{}}
+	message, ok := commentCommand.Execute()
+
+	if ok {
+		t.Errorf("Command execution completed with OK, but shouldn't have")
+	}
+
+	if message != "Issue does not exist \n" {
+		t.Errorf("Invalid command execution message. Expected: Issue does not exist \n, but got " + message)
+	}
+}
+
+func TestCommentCommandMissingProject(t *testing.T) {
+	defer monkey.UnpatchAll()
+
+	monkey.Patch(db.FindExistingProject, func(string) (project.Project, error) {
+		return project.Project{}, errors.New("Project not found")
+	})
+
+	commentCommand := CommentCommand{comment.Comment{}}
+	message, ok := commentCommand.Execute()
+
+	if ok {
+		t.Errorf("Command execution completed with OK, but shouldn't have")
+	}
+
+	if message != "Could not find project \n" {
+		t.Errorf("Invalid command execution message. Expected: Could not find project \n, but got " + message)
+	}
 }
