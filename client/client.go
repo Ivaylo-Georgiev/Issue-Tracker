@@ -10,7 +10,8 @@ import (
 	"strings"
 )
 
-var loggedUser string
+// LoggedUser is the user who is currently logged in the system
+var LoggedUser string
 
 func main() {
 	con, err := net.Dial("tcp", "0.0.0.0:9999")
@@ -32,8 +33,8 @@ func main() {
 			clientRequest := strings.TrimSpace(clientRequest)
 
 			if clientRequest == "logout" {
-				if loggedUser != "" {
-					loggedUser = ""
+				if LoggedUser != "" {
+					LoggedUser = ""
 					log.Println("Successfully logged out")
 				} else {
 					log.Println("You are not logged in")
@@ -60,7 +61,7 @@ func main() {
 		if strings.Index(serverResponse, "Login successful") == 0 ||
 			strings.Index(serverResponse, "Registration successful") == 0 {
 			serverResponseFields := strings.Fields(serverResponse)
-			loggedUser = serverResponseFields[len(serverResponseFields)-1]
+			LoggedUser = serverResponseFields[len(serverResponseFields)-1]
 		}
 
 		switch err {
@@ -81,28 +82,29 @@ func constructCommand(clientRequest string) (string, bool) {
 	case "disconnect":
 		return "disconnect", true
 	case "login":
-		return constructLoginCommand()
+		return ConstructLoginCommand()
 	case "register":
-		return constructRegisterCommand()
+		return ConstructRegisterCommand()
 	case "project":
-		return constructProjectCommand()
+		return ConstructProjectCommand()
 	case "issue":
-		return constructIssueCommand()
+		return ConstructIssueCommand()
 	case "resolve":
-		return constructResolveCommand()
+		return ConstructResolveCommand()
 	case "list":
-		return constructListCommand()
+		return ConstructListCommand()
 	case "find":
-		return constructFindCommand()
+		return ConstructFindCommand()
 	case "comment":
-		return constructCommentCommand()
+		return ConstructCommentCommand()
 	default:
 		return "Invallid command", false
 	}
 }
 
-func constructLoginCommand() (string, bool) {
-	if loggedUser != "" {
+// ConstructLoginCommand parses the user input for a login command into a string, which the server can handle
+func ConstructLoginCommand() (string, bool) {
+	if LoggedUser != "" {
 		return "You are already logged in", false
 	}
 
@@ -121,8 +123,9 @@ func constructLoginCommand() (string, bool) {
 	return "login|-|" + strings.TrimSpace(username) + "|-|" + strings.TrimSpace(password), true
 }
 
-func constructRegisterCommand() (string, bool) {
-	if loggedUser != "" {
+// ConstructRegisterCommand parses the user input for a register command into a string, which the server can handle
+func ConstructRegisterCommand() (string, bool) {
+	if LoggedUser != "" {
 		return "You are already logged in", false
 	}
 
@@ -141,8 +144,9 @@ func constructRegisterCommand() (string, bool) {
 	return "register|-|" + strings.TrimSpace(username) + "|-|" + strings.TrimSpace(password), true
 }
 
-func constructProjectCommand() (string, bool) {
-	if loggedUser == "" {
+// ConstructProjectCommand parses the user input for a project command into a string, which the server can handle
+func ConstructProjectCommand() (string, bool) {
+	if LoggedUser == "" {
 		return "You are not logged in", false
 	}
 
@@ -157,8 +161,9 @@ func constructProjectCommand() (string, bool) {
 	return "project|-|" + strings.TrimSpace(projectName), true
 }
 
-func constructIssueCommand() (string, bool) {
-	if loggedUser == "" {
+// ConstructIssueCommand parses the user input for an issue command into a string, which the server can handle
+func ConstructIssueCommand() (string, bool) {
+	if LoggedUser == "" {
 		return "You are not logged in", false
 	}
 
@@ -182,11 +187,12 @@ func constructIssueCommand() (string, bool) {
 		description = scanner.Text()
 	}
 
-	return "issue|-|" + strings.TrimSpace(project) + "|-|" + loggedUser + "|-|" + strings.TrimSpace(title) + "|-|" + strings.TrimSpace(description) + "|-|false", true
+	return "issue|-|" + strings.TrimSpace(project) + "|-|" + LoggedUser + "|-|" + strings.TrimSpace(title) + "|-|" + strings.TrimSpace(description) + "|-|false", true
 }
 
-func constructResolveCommand() (string, bool) {
-	if loggedUser == "" {
+// ConstructResolveCommand parses the user input for a resolve command into a string, which the server can handle
+func ConstructResolveCommand() (string, bool) {
+	if LoggedUser == "" {
 		return "You are not logged in", false
 	}
 
@@ -207,8 +213,9 @@ func constructResolveCommand() (string, bool) {
 	return "resolve|-|" + strings.TrimSpace(project) + "|-|" + strings.TrimSpace(title), true
 }
 
-func constructListCommand() (string, bool) {
-	if loggedUser == "" {
+// ConstructListCommand parses the user input for a list command into a string, which the server can handle
+func ConstructListCommand() (string, bool) {
+	if LoggedUser == "" {
 		return "You are not logged in", false
 	}
 
@@ -223,8 +230,9 @@ func constructListCommand() (string, bool) {
 	return "list|-|" + strings.TrimSpace(project), true
 }
 
-func constructFindCommand() (string, bool) {
-	if loggedUser == "" {
+// ConstructFindCommand parses the user input for a find command into a string, which the server can handle
+func ConstructFindCommand() (string, bool) {
+	if LoggedUser == "" {
 		return "You are not logged in", false
 	}
 
@@ -245,8 +253,9 @@ func constructFindCommand() (string, bool) {
 	return "find|-|" + strings.TrimSpace(project) + "|-|" + strings.TrimSpace(title), true
 }
 
-func constructCommentCommand() (string, bool) {
-	if loggedUser == "" {
+// ConstructCommentCommand parses the user input for a comment command into a string, which the server can handle
+func ConstructCommentCommand() (string, bool) {
+	if LoggedUser == "" {
 		return "You are not logged in", false
 	}
 
@@ -270,5 +279,5 @@ func constructCommentCommand() (string, bool) {
 		comment = scanner.Text()
 	}
 
-	return "comment|-|" + strings.TrimSpace(project) + "|-|" + strings.TrimSpace(title) + "|-|" + strings.TrimSpace(comment) + "|-|" + loggedUser, true
+	return "comment|-|" + strings.TrimSpace(project) + "|-|" + strings.TrimSpace(title) + "|-|" + strings.TrimSpace(comment) + "|-|" + LoggedUser, true
 }
